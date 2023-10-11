@@ -1,14 +1,15 @@
 import { ButtomNav } from "@/components/nav/ButtomNav";
 import {
-  foodMenuButton,
+  homeMenuButton,
   trainingMenuButton,
 } from "@/components/nav/buttonTypes";
+import React from "react";
 
-export default function Home() {
+export default function Food() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      Welcome
-      <ButtomNav buttonDataList={[foodMenuButton, trainingMenuButton]} />
+      food
+      <ButtomNav buttonDataList={[homeMenuButton, trainingMenuButton]} />
     </main>
   );
 }
