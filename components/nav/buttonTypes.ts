@@ -20,3 +20,10 @@ export const homeMenuButton: ButtonData = {
   alt: "Home Logo",
   title: "Home",
 };
+
+export const planMenuButton: ButtonData = {
+  link: "/training/plan",
+  src: "/plan.svg",
+  alt: "Plan Logo",
+  title: "Plan",
+};
