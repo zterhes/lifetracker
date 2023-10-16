@@ -1,51 +1,68 @@
 "use client";
 import { InputField } from "@/components/InputField";
-import React, { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import React, { useRef, useState } from "react";
+import axios from "axios";
 
-interface FormData {
-  planName: string;
+type NewPlan = {
+  text: string;
   isDynamic: boolean;
-}
+};
 
 export default function PlanPage() {
-  const [formData, setFormData] = useState<FormData>({
-    planName: "",
-    isDynamic: false,
+  const [text, setText] = useState<string>("");
+  const [isDynamic, setDynamic] = useState(false);
+  const ref = useRef(null);
+
+  const {
+    mutate: createPlan,
+    isLoading,
+    isSuccess,
+    isError,
+    data,
+  } = useMutation({
+    mutationFn: async (newPlan: NewPlan) => {
+      const result = await axios.post("/api/training/ojhjoklhb", newPlan);
+      console.log({ result });
+      return result;
+    },
+    onSuccess: () => {
+      (ref.current as any)?.close();
+    },
   });
 
-  const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let { name, value } = event.target;
-    if (event.target.type == "checkbox") {
-      console.log("checkbox");
-      setFormData({ ...formData, [name]: !formData.isDynamic });
-    }
-    console.log("value", value);
-    setFormData({ ...formData, [name]: value });
-    console.log("formData", formData);
+  console.log({ isLoading, isSuccess, data });
+
+  const handleTextChange: React.ChangeEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    const value = event.target.value;
+    setText(value);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log("formdata from submit", formData);
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+    console.log("submit", { text, isDynamic });
+    e.preventDefault();
+    createPlan({ text, isDynamic });
   };
 
   return (
     <div>
       <button
         className="btn absolute bottom-24 right-5 rounded-full hover:bg-white"
-        onClick={() => document.getElementById("create_plan_modal").showModal()}
+        onClick={() => (ref.current as any)?.showModal()}
       >
         +
       </button>
-      <dialog id="create_plan_modal" className="modal">
+      <dialog ref={ref} className="modal">
         <div className="modal-box w-11/12 max-w-5xl">
           <h3 className="font-bold text-lg">Create a plan</h3>
           <div className="modal-action">
-            <form onSubmit={handleSubmit}>
+            <form method="dialog" onSubmit={handleSubmit}>
               <InputField
                 name="planName"
                 placeholder="Give a name"
-                value={formData.planName}
+                value={text}
                 onChange={handleTextChange}
               />
               <label className="label cursor-pointer">
@@ -54,9 +71,17 @@ export default function PlanPage() {
                   type="checkbox"
                   name="isDynamic"
                   className="toggle"
-                  onChange={handleTextChange}
+                  checked={isDynamic}
+                  onChange={() => setDynamic((prev) => !prev)}
                 />
               </label>
+              {isError ? <p>Elbasztad 🖕</p> : null}
+              <div
+                className="btn m-2"
+                onClick={() => (ref.current as any)?.close()}
+              >
+                Close
+              </div>
               <button className="btn" type="submit">
                 Submit
               </button>
